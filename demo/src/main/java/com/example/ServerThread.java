@@ -11,7 +11,6 @@ public class ServerThread extends Thread{
 
     public ServerThread(Socket socket) {
         this.socket = socket;
-
     }
 
     public String getUsername(){
@@ -29,63 +28,76 @@ public class ServerThread extends Thread{
             
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                
-                boolean exit = true;
-                String username=in.readLine();
-                this.username=username;
-
-                while (exit == true) {
-        
-                    String message=in.readLine();
-
-                    if(username.equals("@everyone")){
+            String username;
+            String message;
+            boolean exit = false;
+            boolean kek;
+            do{
+                kek = true;
+                username = in.readLine();
+                for(int i=0; i<App.personeinchat.size(); i++){
+                    if(App.personeinchat.get(i).getUsername().equals(username)){
+                        out.writeBytes("!\n");
+                        kek = false;
+                    }
+                }
+                if(kek){
+                    out.writeBytes(".\n");
+                }
+            }while(!kek);
+            for(int i=0; i<App.personeinchat.size(); i++){
+                if(!this.username.equals(App.personeinchat.get(i).getUsername())){
+                    DataOutputStream outsingle=new DataOutputStream(App.personeinchat.get(i).getSocket().getOutputStream());
+                    outsingle.writeBytes("+\n");
+                    outsingle.writeBytes(this.username + "\n");
+                }
+            }
+            while(!exit){
+                username = in.readLine();
+                switch(username){
+                    case "@everyone":
+                        out.writeBytes(".\n");
+                        message = in.readLine();
                         for(int i=0; i<App.personeinchat.size(); i++){
+                            if(!this.username.equals(App.personeinchat.get(i).getUsername())){
                                 DataOutputStream outsingle=new DataOutputStream(App.personeinchat.get(i).getSocket().getOutputStream());
-                                outsingle.writeBytes(message);
+                                outsingle.writeBytes("@\n");
+                                outsingle.writeBytes(this.username + "\n");
+                                outsingle.writeBytes(message + "\n");
                             }
                         }
-
-                    else{
-                        boolean kek=false;
-
+                        break;
+                    case "@exit":
+                        out.writeBytes("&\n");
+                        out.writeBytes("x\n");
+                        exit = true;
+                        for(int i=0; i<App.personeinchat.size(); i++){
+                            if(!this.username.equals(App.personeinchat.get(i).getUsername())){
+                                DataOutputStream outsingle=new DataOutputStream(App.personeinchat.get(i).getSocket().getOutputStream());
+                                outsingle.writeBytes("-\n");
+                                outsingle.writeBytes(this.username + "\n");
+                            }
+                        }
+                        break;
+                    default:
+                        DataOutputStream outsingle = null;
                         for(int i=0; i<App.personeinchat.size(); i++){
                             if(App.personeinchat.get(i).getUsername().equals(username)){
-                                DataOutputStream outsingle=new DataOutputStream(App.personeinchat.get(i).getSocket().getOutputStream());
-                                outsingle.writeBytes(message);
+                                outsingle = new DataOutputStream(App.personeinchat.get(i).getSocket().getOutputStream());
                                 kek=true;
                             }
                         }
-
                         if(kek){
-                            out.writeBytes("." + "\n");
+                            out.writeBytes(".\n");
+                            message = in.readLine();
+                            outsingle.writeBytes("*\n");
+                            outsingle.writeBytes(this.username + "\n");
+                            outsingle.writeBytes(message + "\n");
+                        }else{
+                            out.writeBytes("#\n");
                         }
-                        else{
-                            out.writeBytes("#" + "\n");
-                        }
-                    }
-
-                    boolean flag=false;
-
-                    for(int i=0; i<App.personeinchat.size(); i++){
-                        if(App.personeinchat.get(i).getName().equals(username)){
-                            flag=true;
-                        }
-                    }
-
-                    if(flag==true){
-                        out.writeBytes("!" + "\n");
-                    }
-                    else{
-                        out.writeBytes("." + "\n");
-                    }
-
-
-                    if(username.equals("@exit")){
-                        out.writeBytes("-" + "\n");
-                        exit=false;
-                    }
                 }
-
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
