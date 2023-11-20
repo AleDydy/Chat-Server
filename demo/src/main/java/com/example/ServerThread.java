@@ -69,7 +69,6 @@ public class ServerThread extends Thread{
                         break;
                     case "@exit":
                         out.writeBytes("&\n");
-                        out.writeBytes("x\n");
                         exit = true;
                         for(int i=0; i<App.personeinchat.size(); i++){
                             if(!this.username.equals(App.personeinchat.get(i).getUsername())){
@@ -90,11 +89,11 @@ public class ServerThread extends Thread{
                         if(kek){
                             out.writeBytes(".\n");
                             message = in.readLine();
-                            outsingle.writeBytes("*\n");
+                            outsingle.writeBytes("#\n");
                             outsingle.writeBytes(this.username + "\n");
                             outsingle.writeBytes(message + "\n");
                         }else{
-                            out.writeBytes("#\n");
+                            out.writeBytes("!\n");
                         }
                 }
             }

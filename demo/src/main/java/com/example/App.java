@@ -5,11 +5,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class App {
-    static ArrayList <ServerThread> personeinchat=new ArrayList();
+    static ArrayList <ServerThread> personeinchat = new ArrayList();
     public static void main( String[] args ) {
         try {
             ServerSocket servsock= new ServerSocket(3000);
-            loop = true;
+            boolean loop = true;
             while(loop){
                 System.out.println("Server in attesa");
                 Socket s=servsock.accept();
